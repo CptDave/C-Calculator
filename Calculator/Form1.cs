@@ -8,12 +8,19 @@ namespace Calculator
 
     public partial class Form1 : Form
     {
-        double total = 0;
+        private double total = 0;
 
         public Form1()
         {
             InitializeComponent();
         }
+
+        #region Modifier
+        public void setTotal(double total)
+        {
+            this.total = total;
+        }
+        #endregion
 
         #region Button Listeners
         private void btnClear_Click(object sender, EventArgs e)
@@ -40,10 +47,6 @@ namespace Calculator
         private List<OperationPoint> calcDisplay(String str)
         {
             //read numbers, find +-/*, calculate, display
-            List<OperationPoint> add = new List<OperationPoint>();
-            List<OperationPoint> minus = new List<OperationPoint>();
-            List<OperationPoint> divide = new List<OperationPoint>();
-            List<OperationPoint> multiply = new List<OperationPoint>();
             List<OperationPoint> operatorLocation = new List<OperationPoint>();
 
             //read string and assign location to thier list
@@ -53,49 +56,31 @@ namespace Calculator
                 switch (str[x])
                 {
                     case '+':
-                        add.Add(new OperationPoint(x, Operator.PLUS));
+                        operatorLocation.Add(new OperationPoint(x, Operator.PLUS));
                         break;
                     case '-':
-                        minus.Add(new OperationPoint(x, Operator.MINUS));
+                        operatorLocation.Add(new OperationPoint(x, Operator.MINUS));
                         break;
                     case '*':
-                        multiply.Add(new OperationPoint(x, Operator.MULTIPLY));
+                        operatorLocation.Add(new OperationPoint(x, Operator.MULTIPLY));
                         break;
                     case '/':
-                        divide.Add(new OperationPoint(x, Operator.DIVIDE));
+                        operatorLocation.Add(new OperationPoint(x, Operator.DIVIDE));
                         break;
                     default:
                         break;
                 }
             }
-            //add all the location to one list
-            for (int x = 0; x < 4; x++)
-            {
-                switch (x)
-                {
-                    case 0:
-                        operatorLocation.AddRange(add);
-                        break;
-                    case 1:
-                        operatorLocation.AddRange(minus);
-                        break;
-                    case 2:
-                        operatorLocation.AddRange(divide);
-                        break;
-                    case 3:
-                        operatorLocation.AddRange(multiply);
-                        break;
-                    default:
-                        break;
-                }
-            }
+
             //sort the list
             operatorLocation.Sort((x, y) => x.getPoint().CompareTo(y.getPoint()));
+
             //display list to console
             for (int x = 0; x < operatorLocation.Count; x++)
             {
                 Console.WriteLine("Operation " + operatorLocation[x].getOperation() + " at point  " + operatorLocation[x].getPoint());
             }
+
             return operatorLocation;
         }
 
@@ -106,12 +91,11 @@ namespace Calculator
          * */
         public void perfomCalculation(List<OperationPoint> op, String str)
         {
-            int calcToPerform = op.Count;
             double numberHoldOne = 0, numberHoldTwo = 0;
             Boolean firstCalc = true;
 
             //the number of operation are the number of objects in op
-            for (int x=0; x < calcToPerform; x++)
+            for (int x=0; x < op.Count; x++)
             {
                 Console.WriteLine("Operation {0}", x+1);
                 if (firstCalc)
@@ -142,10 +126,11 @@ namespace Calculator
                     Console.WriteLine("Got second number " + numberHoldTwo.ToString());
                 }
 
-                total = doOperation(numberHoldOne, numberHoldTwo, op[x].getOperation());
+                setTotal(doOperation(numberHoldOne, numberHoldTwo, op[x].getOperation()));
                 Console.WriteLine("Total so far is {0}", total);
 
             }
+
             Console.WriteLine("Total is {0}", total);
             tbResult.Text = total.ToString();
         }
@@ -159,6 +144,7 @@ namespace Calculator
         public double doOperation(double x, double y, Operator op)
         {
             double t = 0;
+
             switch (op)
             {
                 case Operator.PLUS:
@@ -176,6 +162,7 @@ namespace Calculator
                 default:
                     break;
             }
+
             return t;
         }
     }
